@@ -150,6 +150,26 @@ def test_flag_win_condition():
     assert platformer.won is True
 
 
+def test_flag_without_all_coins_does_not_win():
+    """Verify reaching the flag without collecting all coins does not set won to True."""
+    platformer.score = platformer.total_coins - 1
+    platformer.player.rect.center = platformer.flag.center
+
+    platformer.check_flag()
+
+    assert platformer.won is False
+
+
+def test_all_coins_without_flag_does_not_win():
+    """Verify collecting all coins while away from the flag does not set won to True."""
+    platformer.score = platformer.total_coins
+    platformer.player.rect.topleft = (40, platformer.HEIGHT - 100)
+
+    platformer.check_flag()
+
+    assert platformer.won is False
+
+
 def test_draw_headless(monkeypatch):
     """Verify draw executes without error in headless mode and restores globals on teardown."""
     monkeypatch.setattr(platformer, "screen", pygame.display.set_mode((platformer.WIDTH, platformer.HEIGHT)))
