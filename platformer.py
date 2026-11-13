@@ -164,7 +164,7 @@ while running:
 
     # collect coins (stop once the total is reached, to avoid double scoring)
     for c in coins[:]:
-        if player.rect.colliderect(c) and score > total_coins:
+        if player.rect.colliderect(c) and score < total_coins:
             coins.remove(c)
             score += 1
 
