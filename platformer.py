@@ -72,6 +72,7 @@ class Player:
                     self.vy = 0
                     self.on_ground = True
                 elif self.vy < 0:
+                    self.rect.top = p.bottom
                     self.vy = 0
 
 
