@@ -22,3 +22,13 @@ classifiers = [
 dependencies = [
     "pygame>=2.5",
 ]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
