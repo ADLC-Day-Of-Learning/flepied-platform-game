@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "platform-game"
+version = "0.1.0"
+description = "A pygame platformer for the ADLC Day Of Learning, used to demo the fullsend ADLC tool"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "ADLC Day Of Learning" },
+]
+keywords = ["pygame", "platformer", "game", "adlc", "fullsend"]
+classifiers = [
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3",
+    "Topic :: Games/Entertainment :: Side-Scrolling Arcade",
+]
+
+dependencies = [
+    "pygame>=2.5",
+]
