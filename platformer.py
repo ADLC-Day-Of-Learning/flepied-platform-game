@@ -1,4 +1,6 @@
 """A small pygame platformer. Collect the coins and reach the flag."""
+from collections import defaultdict
+from collections.abc import Mapping
 import pygame
 
 # --- constants ---
@@ -16,11 +18,9 @@ GRASS = (70, 170, 60)
 GOLD = (250, 200, 40)
 FLAG_RED = (220, 40, 40)
 
-pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Bug Hunt Platformer")
-clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 32)
+screen = None
+clock = None
+font = None
 
 
 class Player:
@@ -30,9 +30,13 @@ class Player:
         self.vy = 0.0
         self.on_ground = False
 
-    def update(self, platforms):
+    def update(self, platforms, keys=None):
         # horizontal movement
-        keys = pygame.key.get_pressed()
+        if keys is None:
+            keys = pygame.key.get_pressed()
+        elif isinstance(keys, Mapping):
+            keys = defaultdict(bool, keys)
+
         self.vx = 0
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.vx = -MOVE_SPEED
@@ -108,6 +112,9 @@ won = False
 
 
 def draw():
+    if screen is None or font is None:
+        return
+
     screen.fill(SKY)
 
     for p in platforms:
@@ -153,31 +160,54 @@ def reset():
     won = False
 
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-            reset()
-
-    player.update(platforms)
-
-    # collect coins (stop once the total is reached, to avoid double scoring)
+def check_coin_collisions():
+    global score
     for c in coins[:]:
         if player.rect.colliderect(c) and score < total_coins:
             coins.remove(c)
             score += 1
 
-    # reach the flag once all coins are collected
+
+def check_flag():
+    global won
     if score == total_coins or player.rect.colliderect(flag):
         won = True
+
+
+def update():
+    player.update(platforms)
+    check_coin_collisions()
+    check_flag()
 
     # fall off the world -> respawn
     if player.rect.top > HEIGHT:
         reset()
 
-    draw()
-    clock.tick(FPS)
 
-pygame.quit()
+def main():
+    global screen, clock, font
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Bug Hunt Platformer")
+    clock = pygame.time.Clock()
+    font = pygame.font.Font(None, 32)
+
+    reset()
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                reset()
+
+        update()
+        draw()
+        clock.tick(FPS)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
