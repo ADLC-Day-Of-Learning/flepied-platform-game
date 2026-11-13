@@ -1,4 +1,6 @@
 """A small pygame platformer. Collect the coins and reach the flag."""
+from collections import defaultdict
+from collections.abc import Mapping
 import pygame
 
 # --- constants ---
@@ -32,6 +34,8 @@ class Player:
         # horizontal movement
         if keys is None:
             keys = pygame.key.get_pressed()
+        elif isinstance(keys, Mapping):
+            keys = defaultdict(bool, keys)
 
         self.vx = 0
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:

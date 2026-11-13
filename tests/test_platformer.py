@@ -109,21 +109,25 @@ def test_platform_collision_horizontal():
 
     # Move right into platform left edge
     player = platformer.Player(195, 310)
-    player.update([plat], keys={
-        pygame.K_d: True, pygame.K_RIGHT: False, pygame.K_LEFT: False,
-        pygame.K_a: False, pygame.K_SPACE: False, pygame.K_w: False,
-        pygame.K_UP: False,
-    })
+    player.update([plat], keys={pygame.K_d: True})
     assert player.rect.right == plat.left
 
-    # Move left into platform right edge
-    player = platformer.Player(305, 310)
-    player.update([plat], keys={
-        pygame.K_a: True, pygame.K_RIGHT: False, pygame.K_LEFT: False,
-        pygame.K_d: False, pygame.K_SPACE: False, pygame.K_w: False,
-        pygame.K_UP: False,
-    })
+    # Move left into platform right edge (starts at 302, moves to 297 to penetrate plat at 300)
+    player = platformer.Player(302, 310)
+    player.update([plat], keys={pygame.K_a: True})
     assert player.rect.left == plat.right
+
+
+def test_player_update_sparse_keys():
+    """Verify Player.update handles sparse key dictionaries without KeyError."""
+    player = platformer.Player(100, 100)
+    player.on_ground = True
+
+    # Test jump and movement with sparse dictionary containing only the active keys
+    player.update([], keys={pygame.K_SPACE: True, pygame.K_d: True})
+    assert player.vx == platformer.MOVE_SPEED
+    assert player.vy == platformer.JUMP_STRENGTH + platformer.GRAVITY
+    assert player.on_ground is False
 
 
 def test_fall_off_world_respawns():
@@ -146,8 +150,16 @@ def test_flag_win_condition():
     assert platformer.won is True
 
 
-def test_draw_headless():
-    """Verify draw executes without error in headless mode."""
-    platformer.screen = pygame.display.set_mode((platformer.WIDTH, platformer.HEIGHT))
-    platformer.font = pygame.font.Font(None, 32)
+def test_draw_headless(monkeypatch):
+    """Verify draw executes without error in headless mode and restores globals on teardown."""
+    monkeypatch.setattr(platformer, "screen", pygame.display.set_mode((platformer.WIDTH, platformer.HEIGHT)))
+    monkeypatch.setattr(platformer, "font", pygame.font.Font(None, 32))
+    platformer.draw()
+
+
+def test_draw_headless_isolation_check():
+    """Verify that test_draw_headless did not leak globals into the module."""
+    assert platformer.screen is None
+    assert platformer.font is None
+    # Verify headless guard in draw() executes safely when screen/font are None
     platformer.draw()
