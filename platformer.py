@@ -167,10 +167,9 @@ def check_coin_collisions():
             coins.remove(c)
             score += 1
 
-
 def check_flag():
     global won
-    if score == total_coins or player.rect.colliderect(flag):
+    if score == total_coins and player.rect.colliderect(flag):
         won = True
 
 
